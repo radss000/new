@@ -25,6 +25,7 @@ const Home = () => {
             }
         }
     }, [])
+    
     const settings = {
         dots: true,
         autoplay: false,
