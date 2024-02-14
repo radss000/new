@@ -25,7 +25,7 @@ const Navbar = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined")
+    if (typeof window !== "undefined") 
       if (localStorage.getItem("userInfo")) {
         const userinfo = localStorage.getItem("userInfo");
         setUserInf(JSON.parse(userinfo));
@@ -41,23 +41,23 @@ const Navbar = () => {
   const handleLogin = async () => {
     console.log("I WAS CLICKED");
     try {
-        console.log("Going to connect");
+      console.log("Going to connect");
+
       // Try to connect to the wallet using Magic's user interface
-      const response = await magic.wallet.connectWithUI();
+      const accounts = await magic.wallet.connectWithUI();
+      console.log("accounts", accounts);
       //please make sure that email is being returned as well
+      setIsLogin(true);
       //please authenticate with server
-      console.log("response", response);
-      if (response) {
+      if (accounts) {
         const walletInfo = await magic.user.getInfo();
         console.log("wallet info ", walletInfo);
-
-        const provider = await magic.wallet.getProvider();
-        console.log("provider", provider);
 
         if (walletInfo !== null) {
           try {
             setLoading(true);
             const response = await postToken(walletInfo);
+            
             if (response.responseCode === 200) {
               message.success("Login Successful");
               setLoading(false);
@@ -78,14 +78,13 @@ const Navbar = () => {
       }
       // If connection to the wallet was successful, initialize new Web3 instance
     } catch (error) {
-        console.error("Failed to connect with Magic:", error);
+      console.error("Failed to connect with Magic:", error);
 
       // Log any errors that occur during the connection process
       console.error("handleConnect:", error);
     }
   };
 
-  
   const handleDisconnect = async () => {
     try {
       // Try to disconnect the user's wallet using Magic's logout method

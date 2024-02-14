@@ -5,66 +5,68 @@ import { magic } from "@/lib/magic";
 import EmailForm from "@/components/EmailForm";
 import SocialLogins from "@/components/SocialLogin";
 
-    const Login = () => {
-    const [disabled, setDisabled] = useState(false);
-    const [user, setUser] = useContext(UserContext);
+const Login = () => {
+  const [disabled, setDisabled] = useState(false);
+  const [user, setUser] = useContext(UserContext);
 
-    async function handleLoginWithEmail(email) {
-        try {
-        setDisabled(true);
+  async function handleLoginWithEmail(email) {
+    try {
+      setDisabled(true);
 
-        console.log("Going to connect");
-        let didToken = await magic.wallet.connectWithUI();
-        console.log(didToken);
-        const res = await fetch("/api/login", {
-            method: "POST",
-            headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + didToken,
-            },
-        });
+      console.log("Going to connect 2");
+      let didToken = await magic.wallet.connectWithUI();
+      console.log(didToken);
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + didToken,
+        },
+      });
 
-        if (res.status === 200) {
-            console.log("here is res :", await res.json());
-            let userMetadata = await magic.user.getMetadata();
-            console.log("user we got", userMetadata);
-            // await setUser(userMetadata);
-            // Router.push('/Profile');
-        }
-        } catch (error) {
-        setDisabled(false);
-        console.log(error);
-        }
+      if (res.status === 200) {
+        console.log("here is res :", await res.json());
+        let userMetadata = await magic.user.getMetadata();
+        console.log("user we got", userMetadata);
+        // await setUser(userMetadata);
+        // Router.push('/Profile');
+      }
+    } catch (error) {
+      console.log(error);
+
+      setDisabled(false);
     }
+  }
 
-    async function handleLoginWithSocial(provider) {
-        const response = await magic.oauth.loginWithRedirect({
-        provider,
-        redirectURI: new URL("/callback", window.location.origin).href,
-        });
-        console.log("here is response :", response);
-    }
+  async function handleLoginWithSocial(provider) {
+    console.log("Going to connect with social");
+    const response = await magic.oauth.loginWithRedirect({
+      provider,
+      redirectURI: new URL("/callback", window.location.origin).href,
+    });
+    console.log("here is response :", response);
+  }
 
-    return (
-        <div className={"flex flex-col items-center justify-center  w-fit h-fit "}>
-        <link rel="icon" href="/Images/favicon.png" />
+  return (
+    <div className={"flex flex-col items-center justify-center  w-fit h-fit "}>
+      <link rel="icon" href="/Images/favicon.png" />
 
-        <div
-            className={
-            "h-6 gradientedBackground rounded-t-lg w-full text-transparent"
-            }
-        >
-            hello
+      <div
+        className={
+          "h-6 gradientedBackground rounded-t-lg w-full text-transparent"
+        }
+      >
+        hello
+      </div>
+
+      <div className="flex flex-col items-center justify-center p-10 w-fit h-fit ">
+        <div className="flex flex-col gap-5 items-center justify-center  w-full h-full">
+          <EmailForm disabled={disabled} onEmailSubmit={handleLoginWithEmail} />
+          <SocialLogins onSubmit={handleLoginWithSocial} />
         </div>
-
-        <div className="flex flex-col items-center justify-center p-10 w-fit h-fit ">
-            <div className="flex flex-col gap-5 items-center justify-center  w-full h-full">
-            <EmailForm disabled={disabled} onEmailSubmit={handleLoginWithEmail} />
-            <SocialLogins onSubmit={handleLoginWithSocial} />
-            </div>
-        </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default Login;
