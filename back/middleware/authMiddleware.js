@@ -19,6 +19,7 @@ const strategy = new MagicStrategy(async function (user, done) {
     return login(user, done);
   }
 });
+
 passport.serializeUser((user, done) => {
   console.log("----------user", user);
   console.log("----------user.issuer", user.issuer);

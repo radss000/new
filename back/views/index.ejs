@@ -31,6 +31,10 @@
             <button onclick="handleLogout()">Logout</button>
           `;
         }
+        else {
+          res.status == 404 ? console.log("User is not logged in", res) :
+          console.log("User is not logged in");
+        }
         document.getElementById("app").innerHTML = html;
       };
 

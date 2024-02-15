@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-
 const Datastore = require("nedb-promise");
 let users = new Datastore({ filename: "users.db", autoload: true });
 
@@ -13,7 +12,7 @@ const magic = new Magic("sk_live_7DC1374D943DB4C7");
 const passport = require("passport");
 const MagicStrategy = require("passport-magic").Strategy;
 
-const strategy = new MagicStrategy(async function(user, done) {
+const strategy = new MagicStrategy(async function (user, done) {
   const userMetadata = await magic.users.getMetadataByIssuer(user.issuer);
   const existingUser = await users.findOne({ issuer: user.issuer });
   // console.log("existing user",existingUser)
@@ -33,13 +32,15 @@ passport.use(strategy);
 /* Implement User Signup */
 const signup = async (user, userMetadata, done) => {
   const lastUser = await users.findOne({}, { sort: { userId: -1 } });
-  const nextUserId = lastUser ? (parseInt(lastUser.userId) + 1).toString().padStart(3, '0') : '001';
+  const nextUserId = lastUser
+    ? (parseInt(lastUser.userId) + 1).toString().padStart(3, "0")
+    : "001";
 
   let newUser = {
     userId: nextUserId,
     issuer: user.issuer,
     email: userMetadata.email,
-    lastLoginAt: user.claim.iat
+    lastLoginAt: user.claim.iat,
   };
   await users.insert(newUser);
   return done(null, newUser);
@@ -50,7 +51,7 @@ const login = async (user, done) => {
   /* Replay attack protection (https://go.magic.link/replay-attack) */
   if (user.claim.iat <= user.lastLoginAt) {
     return done(null, false, {
-      message: `Replay attack detected for user ${user.issuer}}.`
+      message: `Replay attack detected for user ${user.issuer}}.`,
     });
   }
   await users.update(
@@ -62,10 +63,11 @@ const login = async (user, done) => {
 
 /* Attach middleware to login endpoint */
 router.post("/login", passport.authenticate("magic"), (req, res) => {
+  console.log("login");
   if (req.user) {
-      res.status(200).end('User is logged in.');
+    res.status(200).end("User is logged in.");
   } else {
-     return res.status(401).end('Could not log user in.');
+    return res.status(401).end("Could not log user in.");
   }
 });
 
@@ -91,10 +93,7 @@ passport.deserializeUser(async (id, done) => {
 /* Implement Get Data Endpoint */
 router.get("/", async (req, res) => {
   if (req.isAuthenticated()) {
-    return res
-      .status(200)
-      .json(req.user)
-      .end();
+    return res.status(200).json(req.user).end();
   } else {
     return res.status(401).end(`User is not logged in.`);
   }
